@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/eap7build.iml" filepath="$PROJECT_DIR$/.idea/modules/eap7build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/eap7build_main.iml" filepath="$PROJECT_DIR$/.idea/modules/eap7build_main.iml" group="eap7build" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/eap7build_test.iml" filepath="$PROJECT_DIR$/.idea/modules/eap7build_test.iml" group="eap7build" />
+    </modules>
+  </component>
+</project>
