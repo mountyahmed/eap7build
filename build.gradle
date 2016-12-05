@@ -1,5 +1,10 @@
-import at.bxm.gradleplugins.svntools.tasks.SvnCheckout
-
+/**
+ *
+ *  Gradle Build which will create a wildfly modules based on existing input data from an import xml file
+ *
+ *
+ */
+import org.apache.commons.io.FileUtils
 buildscript {
     repositories {
         maven {
@@ -7,34 +12,105 @@ buildscript {
         }
     }
     dependencies {
-        classpath "at.bxm.gradleplugins:gradle-svntools-plugin:2.0"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "commons-io:commons-io:2.5"
     }
 }
 
-apply plugin: "at.bxm.svntools"
 apply plugin: 'java'
 apply plugin: "io.spring.dependency-management"
 
+/**
+ * Variables
+ */
+def importModuleFile="$projectDir/import.xml"
+def moduleNames = new ArrayList<String>();
+def moduleRoot = "${projectDir}${File.separator}modules"
+
 /*************************  project dependencies ******************/
 
-configurations{
+configurations {
     modulirisation
 }
 
-repositories{
+repositories {
     mavenCentral()
 }
 
 dependencyManagement {
     imports {
-        mavenBom 'io.spring.platform:platform-bom:1.0.1.RELEASE'
+        mavenBom 'io.spring.platform:platform-bom:2.0.7.RELEASE'
     }
 }
 
-//svntools {
-//    username = model // credentials for all tasks
-//    password = monty
-//}
+/************************** TASKS *********************************/
+/**
+ * loadDependecies Task
+ *
+ */
+task loadDependecies() {
+    onlyIf {
+        file(importModuleFile).exists()
+    }
+    doLast{
+        def module = new XmlParser().parseText(file(importModuleFile).text)
+        module.resources.resource.each{ tag->
+            println "available tags are :" + tag.@name
+            String groupName = tag.@group +":"+tag.@name
+            moduleNames.add(groupName)
+        }
+        def managedVersions = dependencyManagement.managedVersions
+        managedVersions.findAll{ ver->
+            String group = ver.key
+            println "checking ver against moduleName:" + group
+            moduleNames.contains(group)
+        }.each{ ver->
+            String group = ver.key
+            String version = ver.value
+            println "adding module :" + group + " with version:" +version
+            String dependencySpec = group +":" +version
+            def conf = configurations.create(group)
+            conf.extendsFrom(configurations.modulirisation)
+            conf.description = group
+            configurations.add(conf)
+            dependencies.add(group, dependencySpec,{ transitive = false})
+        }
+    }
+}
+
+/**
+ * Task to build modules from the modulirisation based config only
+ */
+task buildModules(dependsOn:loadDependecies){
+    doLast{
+        configurations.findAll{ configuration ->
+            def parent = configuration.getExtendsFrom()[0]
+            parent == configurations.modulirisation
+        }.each{ configuration ->
+            buildModule(configuration, moduleRoot)
+        }
+    }
+}
+
+/**
+ *
+ * @param resource
+ * @param destination
+ */
+def buildModule(Configuration config, String destination) {
+    println "***************** ${config.description}" + "|" + config.files
+    println "destination is:"+destination
+    def dir = destination + File.separator + config.description.replace(".", File.separator).replace(":", File.separator) + File.separator + "main"
+    println  "destination dir ="+dir
+    // destroy modules root if exists
+    GFileUtils.deleteDirectory(file(dir))
+    // create folder structure in modules root
+    file(dir).mkdirs()
+    def destDir = file(dir)
+    config.getFiles().each {file->
+        FileUtils.copyFileToDirectory(file, destDir)
+    }
+    // write xml fileß
+}
 
 
