@@ -4,12 +4,7 @@
  *
  *
  */
-
-
 import org.apache.commons.io.FileUtils
-import groovy.xml.Namespace
-
-import javax.xml.namespace.QName
 
 buildscript {
     repositories {
