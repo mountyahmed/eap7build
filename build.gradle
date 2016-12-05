@@ -4,7 +4,13 @@
  *
  *
  */
+
+
 import org.apache.commons.io.FileUtils
+import groovy.xml.Namespace
+
+import javax.xml.namespace.QName
+
 buildscript {
     repositories {
         maven {
@@ -23,9 +29,10 @@ apply plugin: "io.spring.dependency-management"
 /**
  * Variables
  */
-def importModuleFile="$projectDir/import.xml"
+def importModuleFile="${projectDir}${File.separator}import.xml"
 def moduleNames = new ArrayList<String>();
 def moduleRoot = "${projectDir}${File.separator}modules"
+def moduleSample ="${projectDir}${File.separator}module.xml"
 
 /*************************  project dependencies ******************/
 
@@ -73,7 +80,7 @@ task loadDependecies() {
             conf.extendsFrom(configurations.modulirisation)
             conf.description = group
             configurations.add(conf)
-            dependencies.add(group, dependencySpec,{ transitive = false})
+            dependencies.add(group, dependencySpec,{ transitive = false}) // just temporarily, we will later control that via xml
         }
     }
 }
@@ -87,7 +94,7 @@ task buildModules(dependsOn:loadDependecies){
             def parent = configuration.getExtendsFrom()[0]
             parent == configurations.modulirisation
         }.each{ configuration ->
-            buildModule(configuration, moduleRoot)
+            buildModule(configuration, moduleRoot, file(moduleSample), file(importModuleFile))
         }
     }
 }
@@ -97,20 +104,46 @@ task buildModules(dependsOn:loadDependecies){
  * @param resource
  * @param destination
  */
-def buildModule(Configuration config, String destination) {
-    println "***************** ${config.description}" + "|" + config.files
-    println "destination is:"+destination
+def buildModule(Configuration config, String destination, File moduleSample, File importFile) {
+    //println "***************** ${config.description}" + "|" + config.files
+    //println "destination is:"+destination
     def dir = destination + File.separator + config.description.replace(".", File.separator).replace(":", File.separator) + File.separator + "main"
-    println  "destination dir ="+dir
+    //println  "destination dir ="+dir
     // destroy modules root if exists
     GFileUtils.deleteDirectory(file(dir))
     // create folder structure in modules root
     file(dir).mkdirs()
     def destDir = file(dir)
-    config.getFiles().each {file->
+    config.getFiles().each { file ->
         FileUtils.copyFileToDirectory(file, destDir)
     }
-    // write xml fileß
+
+    FileUtils.copyFileToDirectory(moduleSample, destDir)
+    def targetXml = file("${dir}${File.separator}module.xml")
+    def targetXmlFile = file(targetXml);
+    def parser = new XmlParser()
+    def xml = parser.parseText(targetXmlFile.text)
+    xml.@name = config.description // set the name of the module
+    // set the files in the module
+    destDir.listFiles().findAll{ file->
+        file.name != 'module.xml'
+    }.each{ depFile ->
+        new Node (xml.resources[0], 'resource-root', [path: depFile.getName()])
+    }
+    // set the dependencies in the module
+    def importXml = parser.parseText(importFile.text)
+    importXml.resources.resource.find{ tag->
+        String groupName = tag.@group +":"+tag.@name
+        println "equality:*****"
+        println groupName
+        println config.description
+        groupName == config.description
+    }.each{ tag->
+        //println "matched dependecies:" + tag
+        tag.dependency.each{ dep->
+            println dep
+            new Node (xml.dependencies[0], 'module', [name: dep.@module])
+        }
+    }
+    new XmlNodePrinter(new PrintWriter(targetXmlFile)).print(xml)
 }
-
-

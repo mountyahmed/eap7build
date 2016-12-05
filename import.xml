@@ -3,41 +3,41 @@
     <resources>
         <resource module ="org.springframework.spring-aop" group="org.springframework" name="spring-aop">
             <dependencies>
-                <dependency module ="org.apache.commons.logging" base="true"/>
-                <dependency module ="javax.api" base="true"/>
-                <dependency module ="javax.servlet.api" base="true"/>
+                <dependency module ="org.apache.commons.logging" export="false"/>
+                <dependency module ="javax.api" export="false"/>
+                <dependency module ="javax.servlet.api" export="false"/>
             </dependencies>
         </resource>
         <resource module ="org.springframework.spring-beans" group="org.springframework" name="spring-beans">
             <dependencies>
-                <dependency module ="org.apache.commons.logging" base="true"/>
-                <dependency module ="javax.api" base="true"/>
-                <dependency module ="javax.servlet.api" base="true"/>
+                <dependency module ="org.apache.commons.logging" export="false"/>
+                <dependency module ="javax.api" export="false"/>
+                <dependency module ="javax.servlet.api" export="false"/>
             </dependencies>
         </resource>
         <resource module ="org.springframework.spring-core" group="org.springframework" name="spring-core">
             <dependencies>
-                <dependency module ="org.apache.commons.logging" base="true"/>
-                <dependency module ="javax.api" base="true"/>
-                <dependency module ="javax.servlet.api" base="true"/>
+                <dependency module ="org.apache.commons.logging" export="false"/>
+                <dependency module ="javax.api" export="false"/>
+                <dependency module ="javax.servlet.api" export="false"/>
             </dependencies>
         </resource>
         <resource module ="org.springframework.spring-expression" group="org.springframework" name="spring-expression">
             <dependencies>
-                <dependency module ="org.apache.commons.logging" base="true"/>
-                <dependency module ="javax.api" base="true"/>
-                <dependency module ="javax.servlet.api" base="true"/>
+                <dependency module ="org.apache.commons.logging" export="false"/>
+                <dependency module ="javax.api" export="false"/>
+                <dependency module ="javax.servlet.api" export="false"/>
             </dependencies>
         </resource>
         <resource module ="org.springframework.spring-context" group="org.springframework" name="spring-context">
             <dependencies>
-                <dependency module ="org.springframework.spring-aop" base="false"/>
-                <dependency module ="org.springframework.spring-beans" base="false"/>
-                <dependency module ="org.springframework.spring-core" base="false"/>
-                <dependency module ="org.springframework.spring-expression" base="false"/>
-                <dependency module ="org.apache.commons.logging" base="true"/>
-                <dependency module ="javax.api" base="true"/>
-                <dependency module ="javax.servlet.api" base="true"/>
+                <dependency module ="org.springframework.spring-aop" export="false"/>
+                <dependency module ="org.springframework.spring-beans" export="false"/>
+                <dependency module ="org.springframework.spring-core" export="false"/>
+                <dependency module ="org.springframework.spring-expression" export="false"/>
+                <dependency module ="org.apache.commons.logging" export="false"/>
+                <dependency module ="javax.api" export="false"/>
+                <dependency module ="javax.servlet.api" export="false"/>
             </dependencies>
         </resource>
     </resources>
